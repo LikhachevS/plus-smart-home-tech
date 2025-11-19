@@ -4,17 +4,12 @@ import jakarta.annotation.PreDestroy;
 import org.apache.avro.specific.SpecificRecordBase;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
-import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.kafka.serializer.GeneralAvroSerializer;
 import ru.yandex.practicum.telemetry.collector.mapper.HubEventAvroMapper;
 import ru.yandex.practicum.telemetry.collector.mapper.SensorEventAvroMapper;
 import ru.yandex.practicum.telemetry.collector.model.HubEvent;
 import ru.yandex.practicum.telemetry.collector.model.SensorEvent;
-
-import java.util.Properties;
 
 @Service
 public class KafkaEventService implements EventService {
@@ -22,20 +17,15 @@ public class KafkaEventService implements EventService {
     private final Producer<String, SpecificRecordBase> producer;
     private final HubEventAvroMapper hubMapper;
     private final SensorEventAvroMapper sensorMapper;
-    private final String topicHubEvent;
-    private final String topicSensorEvent;
+    private final String topicHubEvent = "telemetry.hubs.v1";
+    private final String topicSensorEvent = "telemetry.sensors.v1";
 
-    public KafkaEventService(HubEventAvroMapper hubMapper, SensorEventAvroMapper sensorMapper) {
-        Properties config = new Properties();
-        config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
-        config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, GeneralAvroSerializer.class);
-
-        this.producer = new KafkaProducer<>(config);
+    public KafkaEventService(KafkaProducer<String, SpecificRecordBase> producer,
+                             HubEventAvroMapper hubMapper,
+                             SensorEventAvroMapper sensorMapper) {
+        this.producer = producer;
         this.hubMapper = hubMapper;
         this.sensorMapper = sensorMapper;
-        topicHubEvent = "telemetry.hubs.v1";
-        topicSensorEvent = "telemetry.sensors.v1";
     }
 
     @Override
