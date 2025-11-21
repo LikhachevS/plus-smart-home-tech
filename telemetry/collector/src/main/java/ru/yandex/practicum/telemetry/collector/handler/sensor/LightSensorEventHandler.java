@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.grpc.telemetry.event.LightSensorProto;
 import ru.yandex.practicum.grpc.telemetry.event.SensorEventProto;
+import ru.yandex.practicum.kafka.telemetry.event.LightSensorAvro;
 import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
 import ru.yandex.practicum.telemetry.collector.service.EventService;
 
@@ -21,11 +22,11 @@ public class LightSensorEventHandler implements SensorEventHandler {
 
     @Override
     public void handle(SensorEventProto event) {
-        LightSensorProto climateSensorProto = event.getLightSensor();
+        LightSensorProto lightSensorProto = event.getLightSensor();
 
-        LightSensorProto lightSensorProto = LightSensorProto.newBuilder()
-                .setLinkQuality(climateSensorProto.getLinkQuality())
-                .setLuminosity(climateSensorProto.getLuminosity())
+        LightSensorAvro lightSensorAvro = LightSensorAvro.newBuilder()
+                .setLinkQuality(lightSensorProto.getLinkQuality())
+                .setLuminosity(lightSensorProto.getLuminosity())
                 .build();
 
         SensorEventAvro sensorEventAvro = SensorEventAvro.newBuilder()
@@ -34,7 +35,7 @@ public class LightSensorEventHandler implements SensorEventHandler {
                 .setTimestamp(Instant.ofEpochSecond(
                         event.getTimestamp().getSeconds(),
                         event.getTimestamp().getNanos()))
-                .setPayload(lightSensorProto)
+                .setPayload(lightSensorAvro)
                 .build();
 
         eventService.sendSensorEvent(sensorEventAvro);
