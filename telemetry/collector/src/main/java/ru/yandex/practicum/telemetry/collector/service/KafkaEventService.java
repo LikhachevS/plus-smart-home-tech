@@ -6,41 +6,33 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.telemetry.collector.mapper.HubEventAvroMapper;
-import ru.yandex.practicum.telemetry.collector.mapper.SensorEventAvroMapper;
-import ru.yandex.practicum.telemetry.collector.model.HubEvent;
-import ru.yandex.practicum.telemetry.collector.model.SensorEvent;
+import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
+import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
+
+import java.time.Instant;
 
 @Service
 public class KafkaEventService implements EventService {
 
     private final Producer<String, SpecificRecordBase> producer;
-    private final HubEventAvroMapper hubMapper;
-    private final SensorEventAvroMapper sensorMapper;
     private final String topicHubEvent = "telemetry.hubs.v1";
     private final String topicSensorEvent = "telemetry.sensors.v1";
 
-    public KafkaEventService(KafkaProducer<String, SpecificRecordBase> producer,
-                             HubEventAvroMapper hubMapper,
-                             SensorEventAvroMapper sensorMapper) {
+    public KafkaEventService(KafkaProducer<String, SpecificRecordBase> producer) {
         this.producer = producer;
-        this.hubMapper = hubMapper;
-        this.sensorMapper = sensorMapper;
     }
 
     @Override
-    public void sendSensorEvent(SensorEvent event) {
-        SpecificRecordBase eventAvro = sensorMapper.toAvro(event);
-        String hubId = event.getHubId();
-        ProducerRecord<String, SpecificRecordBase> record = new ProducerRecord<>(topicSensorEvent, hubId, eventAvro);
+    public void sendSensorEvent(SensorEventAvro eventAvro) {
+        ProducerRecord<String, SpecificRecordBase> record = new ProducerRecord<>(topicSensorEvent, null,
+                Instant.now().toEpochMilli(), eventAvro.getHubId(), eventAvro);
         producer.send(record);
     }
 
     @Override
-    public void sendHubEvent(HubEvent event) {
-        SpecificRecordBase eventAvro = hubMapper.toAvro(event);
-        String hubId = event.getHubId();
-        ProducerRecord<String, SpecificRecordBase> record = new ProducerRecord<>(topicHubEvent, hubId, eventAvro);
+    public void sendHubEvent(HubEventAvro eventAvro) {
+        ProducerRecord<String, SpecificRecordBase> record = new ProducerRecord<>(topicHubEvent, null,
+                Instant.now().toEpochMilli(), eventAvro.getHubId(), eventAvro);
         producer.send(record);
     }
 
