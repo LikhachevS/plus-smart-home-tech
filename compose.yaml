@@ -1,4 +1,16 @@
 services:
+  postgres:
+    image: postgres:16.1
+    container_name: analyze-db
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=analyze
+      - POSTGRES_USER=analyze
+      - POSTGRES_PASSWORD=analyze
+    volumes:
+      - ./volumes/postgres:/var/lib/postgresql/data/
+
   kafka:
     image: confluentinc/confluent-local:7.4.3
     hostname: kafka
