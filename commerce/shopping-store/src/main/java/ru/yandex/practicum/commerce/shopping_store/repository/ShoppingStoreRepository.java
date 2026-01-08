@@ -1,0 +1,12 @@
+package ru.yandex.practicum.commerce.shopping_store.repository;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import ru.yandex.practicum.commerce.interaction_api.shopping_store.enums.ProductCategory;
+import ru.yandex.practicum.commerce.shopping_store.model.Product;
+
+public interface ShoppingStoreRepository extends JpaRepository<Product, String> {
+
+    Page<Product> findAllByProductCategory(ProductCategory category, Pageable pageable);
+}
