@@ -8,6 +8,7 @@ import ru.yandex.practicum.commerce.shopping_cart.model.CartItem;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
@@ -30,7 +31,7 @@ public abstract class ShoppingCartMapper {
     @Mapping(target = "shoppingCartId", ignore = true)
     public abstract void updateEntityFromDto(ShoppingCartDto dto, @MappingTarget Cart entity);
 
-    protected Map<String, Integer> itemsToMap(List<CartItem> items) {
+    protected Map<UUID, Integer> itemsToMap(List<CartItem> items) {
         if (items == null || items.isEmpty()) {
             return Collections.emptyMap();
         }
@@ -41,7 +42,7 @@ public abstract class ShoppingCartMapper {
                 ));
     }
 
-    protected List<CartItem> mapToItems(Map<String, Integer> products) {
+    protected List<CartItem> mapToItems(Map<UUID, Integer> products) {
         if (products == null || products.isEmpty()) {
             return Collections.emptyList();
         }

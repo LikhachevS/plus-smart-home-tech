@@ -7,12 +7,14 @@ import lombok.Builder;
 import lombok.Data;
 import ru.yandex.practicum.commerce.interaction_api.warehouse.dto.DimensionDto;
 
+import java.util.UUID;
+
 @Data
 @Builder
 public class NewProductInWarehouseRequest {
 
     @NotBlank
-    private String productId;
+    private UUID productId;
 
     @NotNull
     private Boolean fragile;
