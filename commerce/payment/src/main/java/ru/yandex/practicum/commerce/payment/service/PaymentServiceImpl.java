@@ -31,7 +31,6 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public PaymentDto goToPayment(OrderDto order) {
-        // 1. Валидация входных данных
         if (order == null) {
             throw new IllegalArgumentException("Order cannot be null");
         }
@@ -42,7 +41,6 @@ public class PaymentServiceImpl implements PaymentService {
             throw new IllegalArgumentException("Delivery price cannot be null");
         }
 
-        // Проверка на неотрицательность
         if (order.getProductPrice().compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("Product price cannot be negative");
         }
@@ -50,19 +48,16 @@ public class PaymentServiceImpl implements PaymentService {
             throw new IllegalArgumentException("Delivery price cannot be negative");
         }
 
-        // 2. Расчёт стоимости товаров с учётом НДС (10%)
-        BigDecimal taxRate = BigDecimal.valueOf(0.1); // 10% НДС
+        BigDecimal taxRate = BigDecimal.valueOf(0.1);
         BigDecimal feeTotal = order.getProductPrice().multiply(taxRate)
-                .setScale(2, RoundingMode.HALF_UP); // НДС (feeTotal)
+                .setScale(2, RoundingMode.HALF_UP);
 
         BigDecimal productCostWithTax = order.getProductPrice().add(feeTotal)
-                .setScale(2, RoundingMode.HALF_UP); // Стоимость товаров с НДС
+                .setScale(2, RoundingMode.HALF_UP);
 
-        // 3. Расчёт итоговой суммы (товары с НДС + доставка)
         BigDecimal totalPayment = productCostWithTax.add(order.getDeliveryPrice())
                 .setScale(2, RoundingMode.HALF_UP);
 
-        // 4. Создание сущности Payment с расчётанными значениями
         Payment payment = Payment.builder()
                 .paymentId(UUID.randomUUID())
                 .totalPayment(totalPayment)
@@ -72,10 +67,8 @@ public class PaymentServiceImpl implements PaymentService {
                 .status(PaymentStatus.PENDING)
                 .build();
 
-        // 5. Сохранение платежа в БД
         Payment savedPayment = repository.save(payment);
 
-        // 6. Преобразование в DTO для возврата клиенту
         PaymentDto paymentDto = PaymentDto.builder()
                 .paymentId(savedPayment.getPaymentId())
                 .totalPayment(savedPayment.getTotalPayment())
@@ -83,7 +76,6 @@ public class PaymentServiceImpl implements PaymentService {
                 .feeTotal(savedPayment.getFeeTotal())
                 .build();
 
-        // 7. Логирование
         log.info("Платёж создан. ID: {}, сумма: {}",
                 savedPayment.getPaymentId(), savedPayment.getTotalPayment());
 

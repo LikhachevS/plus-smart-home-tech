@@ -1,59 +1,27 @@
 package ru.yandex.practicum.commerce.delivery.mapper;
 
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 import ru.yandex.practicum.commerce.delivery.model.Delivery;
 import ru.yandex.practicum.commerce.delivery.model.DeliveryAddress;
 import ru.yandex.practicum.commerce.interaction_api.delivery.dto.DeliveryDto;
 import ru.yandex.practicum.commerce.interaction_api.warehouse.dto.AddressDto;
 
-@Component
-public class DeliveryMapper {
+@Mapper(componentModel = "spring")
+public interface DeliveryMapper {
 
-    public DeliveryDto toDto(Delivery entity) {
-        if (entity == null) return null;
+    @Mapping(source = "fromAddress", target = "fromAddress")
+    @Mapping(source = "toAddress", target = "toAddress")
+    DeliveryDto toDto(Delivery entity);
 
-        return DeliveryDto.builder()
-                .deliveryId(entity.getDeliveryId())
-                .orderId(entity.getOrderId())
-                .deliveryState(entity.getDeliveryState())
-                .fromAddress(addressToDto(entity.getFromAddress()))
-                .toAddress(addressToDto(entity.getToAddress()))
-                .build();
-    }
+    @Mapping(source = "fromAddress", target = "fromAddress")
+    @Mapping(source = "toAddress", target = "toAddress")
+    Delivery toEntity(DeliveryDto dto);
 
-    public Delivery toEntity(DeliveryDto dto) {
-        if (dto == null) return null;
+    @Named("addressToDto")
+    AddressDto addressToDto(DeliveryAddress address);
 
-        return Delivery.builder()
-                .deliveryId(dto.getDeliveryId())
-                .orderId(dto.getOrderId())
-                .deliveryState(dto.getDeliveryState())
-                .fromAddress(dtoToAddress(dto.getFromAddress()))
-                .toAddress(dtoToAddress(dto.getToAddress()))
-                .build();
-    }
-
-    private AddressDto addressToDto(DeliveryAddress address) {
-        if (address == null) return null;
-
-        return AddressDto.builder()
-                .country(address.getCountry())
-                .city(address.getCity())
-                .street(address.getStreet())
-                .house(address.getHouse())
-                .flat(address.getFlat())
-                .build();
-    }
-
-    private DeliveryAddress dtoToAddress(AddressDto dto) {
-        if (dto == null) return null;
-
-        return DeliveryAddress.builder()
-                .country(dto.getCountry())
-                .city(dto.getCity())
-                .street(dto.getStreet())
-                .house(dto.getHouse())
-                .flat(dto.getFlat())
-                .build();
-    }
+    @Named("dtoToAddress")
+    DeliveryAddress dtoToAddress(AddressDto dto);
 }
