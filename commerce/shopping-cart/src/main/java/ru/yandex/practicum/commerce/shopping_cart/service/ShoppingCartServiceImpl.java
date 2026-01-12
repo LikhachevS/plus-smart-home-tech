@@ -15,10 +15,7 @@ import ru.yandex.practicum.commerce.shopping_cart.model.CartStatus;
 import ru.yandex.practicum.commerce.shopping_cart.model.ChangeProductQuantityRequest;
 import ru.yandex.practicum.commerce.shopping_cart.repository.ShoppingCartRepository;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -42,7 +39,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     @Override
-    public ShoppingCartDto addProductToCart(String username, Map<String, Integer> products) {
+    public ShoppingCartDto addProductToCart(String username, Map<UUID, Integer> products) {
         if (username == null) {
             throw new UnauthorizedUserException("Имя пользователя не может быть пустым!");
         }
@@ -124,9 +121,9 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         return shoppingCart;
     }
 
-    private Cart addProductsToCart(Cart shoppingCart, Map<String, Integer> products) {
-        Map<String, Integer> validProducts = new HashMap<>(products);
-        Map<String, CartItem> itemMap = shoppingCart.getItems().stream()
+    private Cart addProductsToCart(Cart shoppingCart, Map<UUID, Integer> products) {
+        Map<UUID, Integer> validProducts = new HashMap<>(products);
+        Map<UUID, CartItem> itemMap = shoppingCart.getItems().stream()
                 .collect(Collectors.toMap(CartItem::getProductId, Function.identity()));
 
         validProducts.forEach((productId, quantity) -> {
